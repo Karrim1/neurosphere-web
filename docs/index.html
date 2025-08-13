@@ -51,7 +51,8 @@
         const [messages, setMessages] = React.useState([]);
         const [input, setInput] = React.useState('');
         const [verbosity, setVerbosity] = React.useState('medium');
-        const [reasoning, setReasoning] = React.useState('medium');
+          
+      const [reasoning, setReasoning] = React.useState('medium');
         const sendMessage = () => {
             const text = input.trim();
             if (!text) return;
