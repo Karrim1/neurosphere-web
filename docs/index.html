@@ -58,6 +58,31 @@
             if (!text) return;
             if (text.startsWith('/')) {
                 const parts = text.split(/\s+/);
+                  if (parts[0] === '/summarize') {
+        const totalMessages = messages.length;
+        let userCount = 0, assistantCount = 0, posCount = 0, negCount = 0, neutralCount = 0;
+        messages.forEach((msg) => {
+            if (msg.sender === 'user') userCount++;
+            if (msg.sender === 'assistant') assistantCount++;
+            const em = detectEmotion(msg.text);
+            if (em === 'positive') posCount++;
+            else if (em === 'negative') negCount++;
+            else neutralCount++;
+        });
+        const summary = 'Conversation summary: total ' + totalMessages + ' messages. User: ' + userCount + ', Assistant: ' + assistantCount + '. Emotions - positive: ' + posCount + ', negative: ' + negCount + ', neutral: ' + neutralCount + '.';
+        setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: summary }]);
+        setInput('');
+        return;
+    }
+    if (parts[0] === '/generate' && parts[1] === 'json') {
+        const msgText = parts.slice(2).join(' ') || 'Hello';
+        const obj = { message: msgText, code: messages.length };
+        const jsonString = JSON.stringify(obj);
+        setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: jsonString }]);
+        setInput('');
+        return;
+    }
+
                 if (parts[0] === '/generate' && parts[1] === 'sql' && parts.length >= 3) {
                     const query = parts.slice(2).join(' ');
                     const code = query.toLowerCase().startsWith('select') ? query + ';' : 'SELECT ' + query + ';';
@@ -114,7 +139,8 @@
                 React.createElement('button', {onClick: sendMessage}, 'Send')
             ),
             React.createElement('p', {style: {fontSize:'0.8em', color:'#666'}}, 'Use /generate sql <query> or /generate python add <a> <b> commands.')
-        );
+        
+                                  );
     }
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(React.createElement(App));
