@@ -1,149 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>NeuroSphere Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroSphere Interactive Story</title>
+  <!-- Tailwind CSS via CDN for quick styling -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- React and ReactDOM via CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 </head>
-<body>
-  <div id="root"></div>
-  <script>
-    const POSITIVE_WORDS = new Set(['happy','good','great','love','excellent','fantastic','wonderful','awesome','smile','glad']);
-    const NEGATIVE_WORDS = new Set(['sad','bad','terrible','hate','horrible','awful','angry','upset','depressed','cry']);
-    function detectEmotion(text) {
-        const words = (text.toLowerCase().match(/\b\w+\b/g) || []);
-        let pos = 0; let neg = 0;
-        words.forEach((w) => {
-            if (POSITIVE_WORDS.has(w)) pos += 1;
-            if (NEGATIVE_WORDS.has(w)) neg += 1;
-        });
-        if (pos > neg) return 'positive';
-        if (neg > pos) return 'negative';
-        return 'neutral';
-    }
-    function stubContent(emotion, reasoning) {
-        let base;
-        switch (emotion) {
-            case 'positive':
-                base = "It's wonderful to hear that you're feeling positive.";
-                break;
-            case 'negative':
-                base = "I'm sorry you're experiencing negative feelings.";
-                break;
-            default:
-                base = "I understand.";
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div id="root" class="min-h-screen flex items-center justify-center"></div>
+
+  <script type="text/javascript">
+    function InteractiveStoryApp() {
+      const [sceneId, setSceneId] = React.useState('start');
+
+      // Define the story structure. Each scene has text and an array of choices.
+      const scenes = {
+        start: {
+          text: 'Добро пожаловать в интерактивную историю NeuroSphere! В этом приключении каждое ваше решение влияет на сюжет. Готовы начать?',
+          choices: [
+            { label: 'Начать приключение', next: 'forest' }
+          ]
+        },
+        forest: {
+          text: 'Вы оказываетесь в загадочном лесу. Вокруг шепчутся деревья, а вдалеке видна мерцающая тропинка. Что вы сделаете?',
+          choices: [
+            { label: 'Пойти по светлой тропинке', next: 'cottage' },
+            { label: 'Исследовать тёмную пещеру', next: 'cave' }
+          ]
+        },
+        cottage: {
+          text: 'Вы следуете по тропинке и выходите к уютному домику. Из трубы поднимается дымок. Что дальше?',
+          choices: [
+            { label: 'Постучать в дверь', next: 'witch' },
+            { label: 'Заглянуть в окно', next: 'window' }
+          ]
+        },
+        cave: {
+          text: 'Вы заходите в тёмную пещеру. Ваши шаги эхом отдаются в глубине. Вдали слышны странные звуки. Что вы выберете?',
+          choices: [
+            { label: 'Продвинуться к звукам', next: 'monster' },
+            { label: 'Вернуться обратно', next: 'forestReturn' }
+          ]
+        },
+        witch: {
+          text: 'Дверь открывает старушка‑ведьма. Она улыбается и приглашает вас войти. Она предлагает вам волшебное зелье. Что вы сделаете?',
+          choices: [
+            { label: 'Принять зелье', next: 'fly' },
+            { label: 'Вежливо отказаться', next: 'escape' }
+          ]
+        },
+        window: {
+          text: 'Вы заглядываете в окно и видите стол, накрытый на ужин. Но внезапно окно распахивается, и вас втягивает внутрь! Вы встречаете дружелюбного кота, который просит о помощи. Что вы сделаете?',
+          choices: [
+            { label: 'Помочь коту найти хозяина', next: 'catHelp' },
+            { label: 'Попросить кота помочь вам выбраться', next: 'escape' }
+          ]
+        },
+        monster: {
+          text: 'Вы смело идёте к звукам и встречаете огромного, но плачущего монстра. Он выглядит добродушно и говорит, что потерял свой амулет. Что вы сделаете?',
+          choices: [
+            { label: 'Помочь монстру найти амулет', next: 'monsterHelp' },
+            { label: 'Попробовать украсть амулет', next: 'steal' }
+          ]
+        },
+        forestReturn: {
+          text: 'Вы решаете вернуться в лес. Теперь тропинка кажется менее страшной. Вы заметили блеск на земле. Что вы делаете?',
+          choices: [
+            { label: 'Поднять блеск', next: 'findAmulet' },
+            { label: 'Игнорировать и следовать дальше', next: 'forest' }
+          ]
+        },
+        fly: {
+          text: 'Выпив зелье, вы обретаете способность летать! Вы парите над лесом и видите все его тайны. Это был счастливый конец вашего приключения.',
+          choices: [
+            { label: 'Сыграть снова', next: 'start' }
+          ]
+        },
+        escape: {
+          text: 'Вы вежливо отказываетесь и покидаете домик. Приключение заканчивается безопасным возвращением домой.',
+          choices: [
+            { label: 'Начать сначала', next: 'start' }
+          ]
+        },
+        catHelp: {
+          text: 'Вы соглашаетесь помочь коту найти хозяина. В благодарность кот дарит вам ключ от сокровищницы. Вы открываете её и находите чудесные драгоценности! Поздравляем!',
+          choices: [
+            { label: 'Сыграть ещё раз', next: 'start' }
+          ]
+        },
+        monsterHelp: {
+          text: 'Вы помогаете монстру найти амулет. Оказавшись благодарным, он провожает вас к выходу, даруя магический амулет, который приносит удачу.',
+          choices: [
+            { label: 'Начать новое приключение', next: 'start' }
+          ]
+        },
+        steal: {
+          text: 'Вы пытаетесь украсть амулет, но монстр замечает и прогоняет вас. Вы оказываетеcь обратно в лесу, пока ещё целы. Лучше начать всё сначала.',
+          choices: [
+            { label: 'Попробовать снова', next: 'start' }
+          ]
+        },
+        findAmulet: {
+          text: 'Вы поднимаете блеск и видите, что это амулет! Вы находите владельца монстра, который радуется и дарует вам сокровища. Конец.',
+          choices: [
+            { label: 'Сыграть ещё раз', next: 'start' }
+          ]
         }
-        if (reasoning === 'minimal') {
-            return base;
-        } else if (reasoning === 'medium') {
-            return base + " I'm here to help with any questions you have.";
-        }
-        return base + " Let's explore the topic in more detail. I'm ready to assist with any aspect you want to discuss.";
-    }
-    function applyVerbosity(content, level) {
-        const sentences = content.split(/[.!?]/).map(s => s.trim()).filter(Boolean);
-        if (level === 'low') return sentences[0] + '.';
-        else if (level === 'medium') return sentences.slice(0,2).join('. ') + '.';
-        return sentences.join('. ') + '.';
-    }
-    function App() {
-        const [messages, setMessages] = React.useState([]);
-        const [input, setInput] = React.useState('');
-        const [verbosity, setVerbosity] = React.useState('medium');
-          
-      const [reasoning, setReasoning] = React.useState('medium');
-        const sendMessage = () => {
-            const text = input.trim();
-            if (!text) return;
-            if (text.startsWith('/')) {
-                const parts = text.split(/\s+/);
-                  if (parts[0] === '/summarize') {
-        const totalMessages = messages.length;
-        let userCount = 0, assistantCount = 0, posCount = 0, negCount = 0, neutralCount = 0;
-        messages.forEach((msg) => {
-            if (msg.sender === 'user') userCount++;
-            if (msg.sender === 'assistant') assistantCount++;
-            const em = detectEmotion(msg.text);
-            if (em === 'positive') posCount++;
-            else if (em === 'negative') negCount++;
-            else neutralCount++;
-        });
-        const summary = 'Conversation summary: total ' + totalMessages + ' messages. User: ' + userCount + ', Assistant: ' + assistantCount + '. Emotions - positive: ' + posCount + ', negative: ' + negCount + ', neutral: ' + neutralCount + '.';
-        setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: summary }]);
-        setInput('');
-        return;
-    }
-    if (parts[0] === '/generate' && parts[1] === 'json') {
-        const msgText = parts.slice(2).join(' ') || 'Hello';
-        const obj = { message: msgText, code: messages.length };
-        const jsonString = JSON.stringify(obj);
-        setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: jsonString }]);
-        setInput('');
-        return;
+      };
+
+      // Render the current scene
+      const scene = scenes[sceneId];
+
+      return (
+        React.createElement('div', { className: 'bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full' },
+          React.createElement('h1', { className: 'text-3xl font-bold mb-4 text-center' }, 'NeuroSphere Story'),
+          React.createElement('p', { className: 'mb-6 text-lg leading-relaxed' }, scene.text),
+          React.createElement('div', { className: 'flex flex-col gap-4' },
+            scene.choices.map((choice, idx) =>
+              React.createElement('button', {
+                key: idx,
+                className: 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors',
+                onClick: () => setSceneId(choice.next)
+              }, choice.label)
+            )
+          )
+        )
+      );
     }
 
-                if (parts[0] === '/generate' && parts[1] === 'sql' && parts.length >= 3) {
-                    const query = parts.slice(2).join(' ');
-                    const code = query.toLowerCase().startsWith('select') ? query + ';' : 'SELECT ' + query + ';';
-                    setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: code }]);
-                } else if (parts[0] === '/generate' && parts[1] === 'python' && parts[2] === 'add' && parts.length === 5) {
-                    const a = Number(parts[3]);
-                    const b = Number(parts[4]);
-                    const code = isNaN(a) || isNaN(b)
-                        ? '# Invalid input: numbers required'
-                        : 'def add(a, b):\n    return a + b\n\nresult = add(' + a + ', ' + b + ')\nprint(\'Result:\', result)';
-                    setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: code }]);
-                } else {
-                    setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: 'Unknown command.' }]);
-                }
-                setInput('');
-                return;
-            }
-            const emotion = detectEmotion(text);
-            const content = stubContent(emotion, reasoning);
-            const reply = applyVerbosity(content, verbosity) + ' (' + emotion + ')';
-            setMessages([...messages, { sender: 'user', text }, { sender: 'assistant', text: reply }]);
-            setInput('');
-        };
-        return React.createElement('div', {style: {fontFamily: 'Arial, sans-serif', maxWidth:'600px', margin:'20px auto'}},
-            React.createElement('h1', {style: {textAlign: 'center'}}, 'NeuroSphere Chat (Web)'),
-            React.createElement('div', {style: {border:'1px solid #ccc', borderRadius:'8px', padding:'10px', height:'300px', overflowY:'auto', marginBottom:'10px'}},
-                messages.map((msg, idx) =>
-                    React.createElement('div', {key: idx, style: {textAlign: msg.sender === 'user' ? 'right' : 'left', margin:'4px 0'}},
-                        React.createElement('span', {style: {display:'inline-block', background: msg.sender === 'user' ? '#e0f0ff' : '#e0ffe0', padding:'4px 8px', borderRadius:'12px'}}, msg.text)
-                    )
-                )
-            ),
-            React.createElement('div', {style: {display:'flex', gap:'4px', marginBottom:'8px'}},
-                React.createElement('select', {value: verbosity, onChange: (e) => setVerbosity(e.target.value)}, 
-                    React.createElement('option', {value:'low'}, 'Low'),
-                    React.createElement('option', {value:'medium'}, 'Medium'),
-                    React.createElement('option', {value:'high'}, 'High')
-                ),
-                React.createElement('select', {value: reasoning, onChange: (e) => setReasoning(e.target.value)}, 
-                    React.createElement('option', {value:'minimal'}, 'Minimal'),
-                    React.createElement('option', {value:'medium'}, 'Medium'),
-                    React.createElement('option', {value:'high'}, 'High')
-                )
-            ),
-            React.createElement('div', {style: {display:'flex', gap:'4px'}},
-                React.createElement('input', {
-                    type: 'text',
-                    value: input,
-                    onChange: (e) => setInput(e.target.value),
-                    onKeyDown: (e) => { if (e.key === 'Enter') sendMessage(); },
-                    style: {flexGrow: 1, padding:'4px 8px'},
-                    placeholder: 'Type a message or command...'
-                }),
-                React.createElement('button', {onClick: sendMessage}, 'Send')
-            ),
-            React.createElement('p', {style: {fontSize:'0.8em', color:'#666'}}, 'Use /generate sql <query> or /generate python add <a> <b> commands.')
-        
-                                  );
-    }
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
+    // Render the app
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(InteractiveStoryApp));
   </script>
 </body>
 </html>
