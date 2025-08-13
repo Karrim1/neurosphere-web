@@ -1,0 +1,20 @@
+{
+  "name": "neurosphere-web",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "webpack --mode development --watch"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4",
+    "babel-loader": "^9.1.2",
+    "@babel/core": "^7.22.5",
+    "@babel/preset-react": "^7.22.5"
+  }
+}
